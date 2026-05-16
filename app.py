@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from supabase import create_client, ClientOptions  # 👈 เพิ่ม ClientOptions เข้าไปตรงนี้
 import sys
 # --- วางแทนที่โค้ดดัก sys.stdout เดิม ---
 import locale
@@ -44,8 +45,10 @@ SUPABASE_HEADERS = {
     "Accept-Charset": "utf-8"
 }
 
-# ส่ง headers เข้าไปพร้อมตอนสร้าง client
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY, options={"headers": SUPABASE_HEADERS})
+supabase = create_client(
+    SUPABASE_URL, 
+    SUPABASE_KEY, 
+    options=ClientOptions(headers=SUPABASE_HEADERS))
 BUCKET_NAME = "payment-slips"  
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
