@@ -5,10 +5,12 @@ from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for, session  # 👈 เพิ่ม session ตรงนี้
 from supabase import create_client
 
-if sys.stdout.encoding != 'utf-8':
-    import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+# บังคับระบบภายในของ Python ให้ใช้ UTF-8 ในการประมวลผล string ทั้งหมด
+import importlib
+importlib.reload(sys)
+
+# ตั้งค่าสภาพแวดล้อมให้ทุก HTTP Client ใน Python รับรู้ว่าเป็น UTF-8
+os.environ["PYTHONIOENCODING"] = "utf-8"
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
@@ -73,8 +75,11 @@ def index():
 
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
-                    file=file_object,  # 👈 เปลี่ยนมาส่งก้อนข้อมูลดิบที่ไม่มีภาษาไทยแทน
-                    file_options={"content-type": file.content_type},
+                    file=file_object,
+                    file_options={
+                        "content-type": file.content_type,
+                        "cache-control": "3600"
+                    },
                 )
                 public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
