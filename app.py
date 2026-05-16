@@ -1,18 +1,21 @@
 import os
 from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for
-from supabase import create_client, Client
+from supabase import create_client
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
 
 # --- 🔌 เชื่อมต่อ Supabase ---
-# นำ URL และ API Key ที่ก๊อปปี้มาจากเว็บ Supabase มาใส่ตรงนี้ครับ
 SUPABASE_URL = "https://atnjjcdcaxuqbzzzhloy.supabase.co"
-SUPABASE_KEY = "sb_publishable_c52Jv74jtCh2FoDL3YvHhA_P435b2ZC"
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-BUCKET_NAME = "payment-slips"  # ชื่อ Bucket ที่เราสร้างไว้ใน Supabase Storage
+# ⚠️ แนะนำ: ให้ไปก๊อปปี้คีย์ที่เป็น "service_role" (secret key) จากหน้าเว็บ Supabase มาใส่แทนคีย์เดิม
+# เพื่อให้หลังบ้านมีสิทธิ์บันทึกข้อมูลและอัปโหลดไฟล์ได้อย่างถูกต้องครับ
+SUPABASE_KEY = "sb_publishable_c52Jv74jtCh2FoDL3YvHhA_P435b2ZC" 
+
+# แก้ไขตรงนี้: ลบคำว่า ": Client" ออกเพื่อให้โค้ดคลีนขึ้น ป้องกันเซิร์ฟเวอร์สับสน
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+BUCKET_NAME = "payment-slips"  
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
@@ -55,7 +58,7 @@ def index():
                     filename
                 )
 
-                # 3. 📝 บันทึกข้อมูลรายชื่อและลิงก์รูปภาพลงฐานข้อมูลออนไลน์ (Table ชื่อ payments)
+                # 3. 📝 บันทึกข้อมูลรายชื่อและลิงก์รูปภาพลงฐานข้อมูลออนไลน์
                 data = {
                     "name": name,
                     "amount": float(amount),
@@ -102,6 +105,5 @@ def delete_payment(payment_id, filename):
     return redirect(url_for("index"))
 
 
-# --- จัดย่อหน้าให้ถูกต้อง และเอา init_db() ออกเพื่อป้องกัน Error ---
 if __name__ == "__main__":
     app.run(debug=True)
