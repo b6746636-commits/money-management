@@ -1,30 +1,38 @@
 import os
 from datetime import datetime
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for, session  # 👈 เพิ่ม session ตรงนี้
 from supabase import create_client
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
 
+# 🔑 ตั้งรหัสผ่านสำหรับแอดมินที่นี่
+ADMIN_PASSWORD = "your_admin_password_here" 
+
+# 👥 1. ฟิกรายชื่อคนที่มีสิทธิ์จ่ายเงินไว้ที่นี่ (แก้ไขตามชื่อจริงได้เลยครับ)
+ALLOWED_NAMES = [
+    # รุ่น 14
+    "เหมยเหมย", "วุ้นเป็ด", "กาฟิว", "ไฟท์", "กัน", "ต้นข้าว", "แอน", "น้ำมนต์", 
+    "เนส", "จ๊ะจ๋า", "แพนเค้ก", "อาคลัง", "โอม", "เอ็มมี่", "กีตาร์", "หมูอ้วน", "อุ๋มอิ๋ม", "ปัญปัญ",
+    
+    # รุ่น 15
+    "นุ่น", "จ้าว", "โฟร์", "ลูกไหม", "ออย", "ปอแก้ว", "เชอร์รี่", "สารวัตร", "ฟีฟ่า", 
+    "มาร์ติน", "ปังปัง", "ฟลุ๊ก", "พีเจ", "ฟิล์ม", "เฟรม"
+]
+
 # --- 🔌 เชื่อมต่อ Supabase ---
 SUPABASE_URL = "https://atnjjcdcaxuqbzzzhloy.supabase.co"
-
-# ⚠️ แนะนำ: ให้ไปก๊อปปี้คีย์ที่เป็น "service_role" (secret key) จากหน้าเว็บ Supabase มาใส่แทนคีย์เดิม
-# เพื่อให้หลังบ้านมีสิทธิ์บันทึกข้อมูลและอัปโหลดไฟล์ได้อย่างถูกต้องครับ
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bmpqY2RjYXh1cWJ6enpobG95Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODkxMDUxMywiZXhwIjoyMDk0NDg2NTEzfQ.R97ZWVQUVel23O0ruF_t642YloTd_INNpFaxqEUitO8" 
-
-# แก้ไขตรงนี้: ลบคำว่า ": Client" ออกเพื่อให้โค้ดคลีนขึ้น ป้องกันเซิร์ฟเวอร์สับสน
+SUPABASE_KEY = "รหัส_service_role_ของคุณ" 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 BUCKET_NAME = "payment-slips"  
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# --- หน้าแรก (ฟอร์มกรอกข้อมูล + ดึงข้อมูลจาก Supabase มาแสดง) ---
+# --- หน้าแรก (ส่งฟอร์มสลิปอย่างเดียว / ไม่แสดงตารางให้คนทั่วไปเห็น) ---
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -36,6 +44,11 @@ def index():
             flash("❌ กรุณากรอกข้อมูลและแนบสลิปให้ครบถ้วน", "danger")
             return redirect(url_for("index"))
 
+        # 🚨 ตรวจสอบว่าชื่อที่พิมพ์มา ตรงกับชื่อที่ฟิกไว้ในระบบไหม
+        if name not in ALLOWED_NAMES:
+            flash("❌ ไม่พบชื่อของคุณในระบบ กรุณาตรวจสอบการพิมพ์สะกดคำ", "danger")
+            return redirect(url_for("index"))
+
         if file and allowed_file(file.filename):
             file_ext = file.filename.rsplit(".", 1)[1].lower()
             current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -43,22 +56,14 @@ def index():
             filename = f"{current_time}_{clean_name}.{file_ext}"
 
             try:
-                # อ่านข้อมูลในไฟล์รูปภาพเพื่อเตรียมส่ง
                 file_data = file.read()
-
-                # 1. 📤 อัปโหลดไฟล์รูปภาพขึ้น Supabase Storage
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
                     file=file_data,
                     file_options={"content-type": file.content_type},
                 )
+                public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
-                # 2. 🔗 ดึงลิงก์ URL สาธารณะของรูปภาพที่เพิ่งอัปโหลดไป
-                public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(
-                    filename
-                )
-
-                # 3. 📝 บันทึกข้อมูลรายชื่อและลิงก์รูปภาพลงฐานข้อมูลออนไลน์
                 data = {
                     "name": name,
                     "amount": float(amount),
@@ -67,7 +72,7 @@ def index():
                 }
                 supabase.table("payments").insert(data).execute()
 
-                flash("🎉 อัปโหลดสลิปขึ้นระบบคลาวด์สำเร็จแล้ว!", "success")
+                flash("🎉 อัปโหลดสลิปแจ้งชำระเงินสำเร็จแล้ว!", "success")
                 return redirect(url_for("index"))
 
             except Exception as e:
@@ -77,32 +82,60 @@ def index():
             flash("❌ รูปภาพต้องเป็นนามสกุล png, jpg, jpeg, gif เท่านั้น", "danger")
             return redirect(url_for("index"))
 
-    # --- ดึงข้อมูลจาก Supabase มาแสดงบนตารางหน้าเว็บ ---
-    try:
-        response = (
-            supabase.table("payments").select("*").order("id", desc=True).execute()
-        )
-        rows = response.data
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        rows = []
-
-    return render_template("index.html", payments=rows)
+    # ส่งรายชื่อที่ฟิกไว้ไปทำ Dropdown (Select Option) ในหน้าเว็บด้วย
+    return render_template("index.html", allowed_names=ALLOWED_NAMES)
 
 
-# --- ฟังก์ชันสำหรับกดลบข้อมูล ---
+# --- หน้าสำหรับแอดมินล็อกอินเข้าดูข้อมูล ---
+@app.route("/admin", methods=["GET", "POST"])
+def admin_panel():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == ADMIN_PASSWORD:
+            session["is_admin"] = True
+            return redirect(url_for("admin_panel"))
+        else:
+            flash("❌ รหัสผ่านแอดมินไม่ถูกต้อง!", "danger")
+            return redirect(url_for("admin_panel"))
+
+    # เช็คว่าล็อกอินค้างไว้หรือยัง
+    is_admin = session.get("is_admin", False)
+    rows = []
+    
+    if is_admin:
+        try:
+            response = supabase.table("payments").select("*").order("id", desc=True).execute()
+            rows = response.data
+        except Exception as e:
+            print(f"Error fetching data: {e}")
+
+    return render_template("admin.html", payments=rows, is_admin=is_admin)
+
+
+# --- ล็อกเอาต์ออกจากระบบแอดมิน ---
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("is_admin", None)
+    flash("🔒 ออกจากระบบแอดมินเรียบร้อยแล้ว", "success")
+    return redirect(url_for("index"))
+
+
+# --- ฟังก์ชันสำหรับแอดมินกดลบข้อมูล (ล็อกให้ลบได้เฉพาะแอดมิน) ---
 @app.route("/delete/<int:payment_id>/<filename>", methods=["POST"])
 def delete_payment(payment_id, filename):
+    # 🚨 ตรวจความปลอดภัย: ถ้าไม่ใช่แอดมินที่ล็อกอินอยู่ ห้ามลบเด็ดขาด!
+    if not session.get("is_admin", False):
+        flash("⛔ คุณไม่มีสิทธิ์ลบข้อมูลนี้", "danger")
+        return redirect(url_for("index"))
+
     try:
-        # 1. ลบไฟล์สลิปใน Supabase Storage
         supabase.storage.from_(BUCKET_NAME).remove([filename])
-        # 2. ลบแถวข้อมูลในตารางฐานข้อมูล
         supabase.table("payments").delete().eq("id", payment_id).execute()
         flash("🗑️ ลบข้อมูลบนคลาวด์เรียบร้อยแล้ว", "success")
     except Exception as e:
         flash(f"ลบไม่สำเร็จ: {e}", "danger")
 
-    return redirect(url_for("index"))
+    return redirect(url_for("admin_panel"))
 
 
 if __name__ == "__main__":

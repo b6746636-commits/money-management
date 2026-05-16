@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบหลังบ้านแอดมิน</title>
+</head>
+<body>
+    <div style="max-width: 900px; margin: 40px auto; padding: 20px;">
+        
+        {% if not is_admin %}
+            <h2>🔐 เข้าสู่ระบบผู้ดูแลระบบ</h2>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %} <p style="color: red;">{{ message }}</p> {% endfor %}
+              {% endif %}
+            {% endwith %}
+            <form method="POST">
+                <input type="password" name="password" placeholder="กรอกรหัสผ่านแอดมิน" required style="padding: 8px; width: 250px;">
+                <button type="submit" style="padding: 8px 15px;">ยืนยันรหัสผ่าน</button>
+            </form>
+            <br><a href="{{ url_for('index') }}">⬅️ กลับหน้าหลักส่งสลิป</a>
+
+        {% else %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>📊 ตารางตรวจสอบประวัติสลิปเงินโอน (แอดมิน)</h2>
+                <a href="{{ url_for('admin_logout') }}" style="color: red;">🔒 ออกจากระบบ</a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <p style="color: {% if category=='success' %}green{% else %}red{% endif %};">{{ message }}</p>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 10px;">ชื่อผู้โอน</th>
+                        <th style="padding: 10px;">จำนวนเงิน</th>
+                        <th style="padding: 10px;">ภาพสลิป</th>
+                        <th style="padding: 10px;">เวลาทำรายการ</th>
+                        <th style="padding: 10px;">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in payments %}
+                    <tr>
+                        <td style="padding: 10px;">{{ row.name }}</td>
+                        <td style="padding: 10px;">{{ row.amount }} บาท</td>
+                        <td style="padding: 10px;">
+                            <a href="{{ row.slip_url }}" target="_blank">🔍 ดูรูปสลิป</a>
+                        </td>
+                        <td style="padding: 10px;">{{ row.created_at }}</td>
+                        <td style="padding: 10px;">
+                            {% set filename = row.slip_url.split('/')[-1] %}
+                            <form action="{{ url_for('delete_payment', payment_id=row.id, filename=filename) }}" method="POST" onsubmit="return confirm('🚨 คุณแน่ใจใช่ไหมว่าจะลบสลิปนี้อย่างถาวร?');">
+                                <button type="submit" style="background-color: red; color: white; border: none; padding: 5px 10px; cursor: pointer;">ลบข้อมูล</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลการส่งสลิปเข้ามาในขณะนี้</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br><a href="{{ url_for('index') }}">⬅️ ไปดูหน้าหลักส่งสลิป</a>
+        {% endif %}
+
+    </div>
+</body>
+</html>

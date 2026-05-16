@@ -2,102 +2,167 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบส่งสลิปการโอนเงิน</title>
-    <!-- นำเข้า Bootstrap CSS เพื่อความสวยงาม -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .slip-preview { max-width: 80px; max-height: 80px; border-radius: 5px; cursor: pointer; }
-    </style>
+    <title>ระบบส่งสลิปชำระเงิน</title>
+    </head>
+<body>
+    <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
+        <h2>📝 ฟอร์มส่งสลิปชำระเงิน</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="padding: 10px; margin-bottom: 10px; color: white; background-color: {% if category=='success' %}green{% else %}red{% endif %};">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <p>
+    <label>👤 เลือกชื่อของคุณ:</label><br>
+    <select name="name" required style="width: 100%; padding: 8px;">
+        <option value="">-- กรุณาเลือกชื่อของคุณ --</option>
+        
+        <optgroup label="✨ รุ่น 14">
+            <option value="เหมยเหมย">1. เหมยเหมย</option>
+            <option value="วุ้นเป็ด">2. วุ้นเป็ด</option>
+            <option value="กาฟิว">3. กาฟิว</option>
+            <option value="ไฟท์">4. ไฟท์</option>
+            <option value="กัน">5. กัน</option>
+            <option value="ต้นข้าว">6. ต้นข้าว</option>
+            <option value="แอน">7. แอน</option>
+            <option value="น้ำมนต์">8. น้ำมนต์</option>
+            <option value="เนส">9. เนส</option>
+            <option value="จ๊ะจ๋า">10. จ๊ะจ๋า</option>
+            <option value="แพนเค้ก">11. แอนเค้ก</option>
+            <option value="อาคลัง">12. อาคลัง</option>
+            <option value="โอม">13. โอม</option>
+            <option value="เอ็มมี่">14. เอ็มมี่</option>
+            <option value="กีตาร์">15. กีตาร์</option>
+            <option value="หมูอ้วน">16. หมูอ้วน</option>
+            <option value="อุ๋มอิ๋ม">17. อุ๋มอิ๋ม</option>
+            <option value="ปัญปัญ">18. ปัญปัญ</option>
+        </optgroup>
+
+        <optgroup label="✨ รุ่น 15">
+            <option value="นุ่น">1. นุ่น</option>
+            <option value="จ้าว">2. จ้าว</option>
+            <option value="โฟร์">3. โฟร์</option>
+            <option value="ลูกไหม">4. ลูกไหม</option>
+            <option value="ออย">5. ออย</option>
+            <option value="ปอแก้ว">6. ปอแก้ว</option>
+            <option value="เชอร์รี่">7. เชอร์รี่</option>
+            <option value="สารวัตร">8. สารวัตร</option>
+            <option value="ฟีฟ่า">9. ฟีฟ่า</option>
+            <option value="มาร์ติน">10. มาร์ติน</option>
+            <option value="ปังปัง">11. ปังปัง</option>
+            <option value="ฟลุ๊ก">12. ฟลุ๊ก</option>
+            <option value="พีเจ">13. พีเจ</option>
+            <option value="ฟิล์ม">14. ฟิล์ม</option>
+            <option value="เฟรม">15. เฟรม</option>
+        </optgroup>
+    </select>
+</p>
+                <label>💰 จำนวนเงิน (บาท):</label><br>
+                <input type="number" name="amount" step="0.01" required style="width: 100%; padding: 8px;">
+            </p>
+            <p>
+                <label>📸 แนบภาพสลิปเงินโอน:</label><br>
+                <input type="file" name="slip" accept="image/*" required>
+            </p>
+            <button type="submit" style="padding: 10px 20px; background-color: blue; color: white; border: none; cursor: pointer;">ส่งข้อมูลชำระเงิน</button>
+        </form>
+        
+        <br><hr><br>
+        <p align="center">
+            <a href="{{ url_for('admin_panel') }}">🔐 สำหรับผู้ดูแลระบบ (Admin)</a>
+        </p>
+    </div>
+</body>
+</html><!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบส่งสลิปชำระเงิน</title>
 </head>
 <body>
+    <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
+        <h2>📝 ฟอร์มส่งสลิปชำระเงิน</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="padding: 10px; margin-bottom: 10px; color: white; background-color: {% if category=='success' %}green{% else %}red{% endif %};">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
 
-<div class="container py-5">
-    <h2 class="text-center mb-4 text-primary">💰 ระบบแจ้งชำระเงินและส่งสลิป</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <p>
+                <label>👤 เลือกชื่อของคุณ:</label><br>
+                <select name="name" required style="width: 100%; padding: 8px;">
+                    <option value="">-- กรุณาเลือกชื่อของคุณ --</option>
+                    
+                    <optgroup label="✨ รุ่น 14">
+                        <option value="เหมยเหมย">1. เหมยเหมย</option>
+                        <option value="วุ้นเป็ด">2. วุ้นเป็ด</option>
+                        <option value="กาฟิว">3. กาฟิว</option>
+                        <option value="ไฟท์">4. ไฟท์</option>
+                        <option value="กัน">5. กัน</option>
+                        <option value="ต้นข้าว">6. ต้นข้าว</option>
+                        <option value="แอน">7. แอน</option>
+                        <option value="น้ำมนต์">8. น้ำมนต์</option>
+                        <option value="เนส">9. เนส</option>
+                        <option value="จ๊ะจ๋า">10. จ๊ะจ๋า</option>
+                        <option value="แพนเค้ก">11. แพนเค้ก</option>
+                        <option value="อาคลัง">12. อาคลัง</option>
+                        <option value="โอม">13. โอม</option>
+                        <option value="เอ็มมี่">14. เอ็มมี่</option>
+                        <option value="กีตาร์">15. กีตาร์</option>
+                        <option value="หมูอ้วน">16. หมูอ้วน</option>
+                        <option value="อุ๋มอิ๋ม">17. อุ๋มอิ๋ม</option>
+                        <option value="ปัญปัญ">18. ปัญปัญ</option>
+                    </optgroup>
 
-    <!-- ส่วนแสดงข้อความแจ้งเตือน (Alert Messages) -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+                    <optgroup label="✨ รุ่น 15">
+                        <option value="นุ่น">1. นุ่น</option>
+                        <option value="จ้าว">2. จ้าว</option>
+                        <option value="โฟร์">3. โฟร์</option>
+                        <option value="ลูกไหม">4. ลูกไหม</option>
+                        <option value="ออย">5. ออย</option>
+                        <option value="ปorก้ว">6. ปอแก้ว</option>
+                        <option value="เชอร์รี่">7. เชอร์รี่</option>
+                        <option value="สารวัตร">8. สารวัตร</option>
+                        <option value="ฟีฟ่า">9. ฟีฟ่า</option>
+                        <option value="มาร์ติน">10. มาร์ติน</option>
+                        <option value="ปังปัง">11. ปังปัง</option>
+                        <option value="ฟลุ๊ก">12. ฟลุ๊ก</option>
+                        <option value="พีเจ">13. พีเจ</option>
+                        <option value="ฟิล์ม">14. ฟิล์ม</option>
+                        <option value="เฟรม">15. เฟรม</option>
+                    </optgroup>
+                </select>
+            </p>
 
-    <div class="row g-4">
-        <!-- ฝั่งฟอร์มกรอกข้อมูล -->
-        <div class="col-md-5">
-            <div class="card p-4">
-                <h4 class="mb-3 text-secondary">กรอกข้อมูลการโอนเงิน</h4>
-                <form action="/" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">ชื่อ-นามสกุล ของคุณ</label>
-                        <input type="text" class="form-style form-control" id="name" name="name" placeholder="เช่น นายสมชาย ใจดี" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="amount" class="form-label">จำนวนเงินที่โอน (บาท)</label>
-                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="เช่น 500.00" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="slip" class="form-label">แนบภาพสลิปการโอนเงิน</label>
-                        <input class="form-control" type="file" id="slip" name="slip" accept="image/*" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 py-2">📤 ส่งข้อมูลและสลิป</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- ฝั่งตารางแสดงประวัติ (สำหรับแอดมินหรือผู้ตรวจสอบดู) -->
-        <div class="col-md-7">
-            <div class="card p-4">
-                <h4 class="mb-3 text-secondary">ประวัติการแจ้งโอนเงินล่าสุด</h4>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ชื่อผู้โอน</th>
-                                <th>ยอดเงิน</th>
-                                <th>สลิป</th>
-                                <th>เวลา</th>
-                                <th>จัดการ</th> 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in payments %}
-                            <tr>
-                                <td><strong>{{ row.name }}</strong></td>
-                                <td class="text-success fw-bold">{{ "{:,.2f}".format(row.amount) }} บ.</td>
-                                <td>
-                                    <a href="{{ row.slip_url }}" target="_blank">
-                                        <img src="{{ row.slip_url }}" class="slip-preview" alt="สลิป">
-                                    </a>
-                                </td>
-                                <td class="text-muted" style="font-size: 0.85rem;">{{ row.created_at }}</td>
-                                <td>
-                                    <form action="{{ url_for('delete_payment', payment_id=row.id, filename=row.slip_url.split('/')[-1]) }}" method="POST" onsubmit="return confirm('คุณแน่ใจใช่ไหมว่าจะลบข้อมูลนี้จากคลาวด์ถาวร?');">
-                                        <button type="submit" class="btn btn-danger btn-sm">🗑️ ลบ</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-4">ยังไม่มีข้อมูลการส่งสลิปในขณะนี้</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+            <p>
+                <label>💰 จำนวนเงิน (บาท):</label><br>
+                <input type="number" name="amount" step="0.01" required style="width: 100%; padding: 8px;">
+            </p>
+            
+            <p>
+                <label>📸 แนบภาพสลิปเงินโอน:</label><br>
+                <input type="file" name="slip" accept="image/*" required>
+            </p>
+            <button type="submit" style="padding: 10px 20px; background-color: blue; color: white; border: none; cursor: pointer;">ส่งข้อมูลชำระเงิน</button>
+        </form>
+        
+        <br><hr><br>
+        <p align="center">
+            <a href="{{ url_for('admin_panel') }}">🔐 สำหรับผู้ดูแลระบบ (Admin)</a>
+        </p>
     </div>
-</div>
-
-<!-- นำเข้า Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
