@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for, session  # 👈 เพิ่ม session ตรงนี้
@@ -51,9 +52,12 @@ def index():
 
         if file and allowed_file(file.filename):
             file_ext = file.filename.rsplit(".", 1)[1].lower()
+            
+            # ✨ จัดแท็บดึงกลุ่มคำสั่งนี้กลับเข้ามาอยู่ในฟังก์ชัน index() และอยู่ภายใต้เงื่อนไข if ให้ถูกต้อง
+            import random
             current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-            clean_name = name.replace(" ", "_")
-            filename = f"{current_time}_{clean_name}.{file_ext}"
+            random_num = random.randint(1000, 9999)
+            filename = f"slip_{current_time}_{random_num}.{file_ext}"  # 👈 ปลอดภัย เป็นภาษาอังกฤษล้วนแล้ว!
 
             try:
                 file_data = file.read()
