@@ -1,30 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
-from supabase import create_client, ClientOptions  # 👈 เพิ่ม ClientOptions เข้าไปตรงนี้
 import sys
-# --- วางแทนที่โค้ดดัก sys.stdout เดิม ---
-import locale
-# บังคับระบบใน Server ให้เข้าใจว่าแอปพลิเคชันนี้ใช้ UTF-8 เป็นหลักในการคุยกับภายนอก
-locale.getpreferredencoding = lambda *args: 'UTF-8'
-os.environ["PYTHONIOENCODING"] = "utf-8"
+import base64
+import random
 from datetime import datetime
-from flask import Flask, flash, redirect, render_template, request, url_for, session  # 👈 เพิ่ม session ตรงนี้
+from flask import Flask, flash, redirect, render_template, request, url_for, session
 from supabase import create_client
-
-# บังคับระบบภายในของ Python ให้ใช้ UTF-8 ในการประมวลผล string ทั้งหมด
-import importlib
-importlib.reload(sys)
-
-# ตั้งค่าสภาพแวดล้อมให้ทุก HTTP Client ใน Python รับรู้ว่าเป็น UTF-8
-os.environ["PYTHONIOENCODING"] = "utf-8"
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
 
-# 🔑 ตั้งรหัสผ่านสำหรับแอดมินที่นี่
+# 🔑 ตั้งรหัสผ่านสำหรับแอดมิน
 ADMIN_PASSWORD = "01122004" 
 
-# 👥 1. ฟิกรายชื่อคนที่มีสิทธิ์จ่ายเงินไว้ที่นี่ (แก้ไขตามชื่อจริงได้เลยครับ)
+# 👥 รายชื่อระบบ
 ALLOWED_NAMES = [
     # รุ่น 14
     "เหมยเหมย", "วุ้นเป็ด", "กาฟิว", "ไฟท์", "กัน", "ต้นข้าว", "แอน", "น้ำมนต์", 
@@ -35,20 +24,11 @@ ALLOWED_NAMES = [
     "มาร์ติน", "ปังปัง", "ฟลุ๊ก", "พีเจ", "ฟิล์ม", "เฟรม"
 ]
 
-# --- 🔌 เชื่อมต่อ Supabase ---
+# --- 🔌 เชื่อมต่อ Supabase แบบมาตรฐาน (ลดความซับซ้อนของ Options เพื่อไม่ให้พังบน Linux) ---
 SUPABASE_URL = "https://atnjjcdcaxuqbzzzhloy.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bmpqY2RjYXh1cWJ6enpobG95Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODkxMDUxMywiZXhwIjoyMDk0NDg2NTEzfQ.R97ZWVQUVel23O0ruF_t642YloTd_INNpFaxqEUitO8" 
 
-# เพิ่ม headers พิเศษเพื่อบอก Supabase ว่าเรากำลังส่งภาษาไทย (UTF-8) ไปให้นะ
-SUPABASE_HEADERS = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Accept-Charset": "utf-8"
-}
-
-supabase = create_client(
-    SUPABASE_URL, 
-    SUPABASE_KEY, 
-    options=ClientOptions(headers=SUPABASE_HEADERS))
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 BUCKET_NAME = "payment-slips"  
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -57,11 +37,10 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# --- หน้าแรก (ส่งฟอร์มสลิปอย่างเดียว / ไม่แสดงตารางให้คนทั่วไปเห็น) ---
+# --- หน้าแรก (ส่งฟอร์มสลิป) ---
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        
         name = request.form.get("name", "").strip()
         amount = request.form.get("amount")
         file = request.files.get("slip")
@@ -70,40 +49,34 @@ def index():
             flash("❌ กรุณากรอกข้อมูลและแนบสลิปให้ครบถ้วน", "danger")
             return redirect(url_for("index"))
 
-        # 🚨 ตรวจสอบว่าชื่อที่พิมพ์มา ตรงกับชื่อที่ฟิกไว้ในระบบไหม
         if name not in ALLOWED_NAMES:
             flash("❌ ไม่พบชื่อของคุณในระบบ กรุณาตรวจสอบการพิมพ์สะกดคำ", "danger")
             return redirect(url_for("index"))
 
         if file and allowed_file(file.filename):
             file_ext = file.filename.rsplit(".", 1)[1].lower()
-            
-            # ✨ จัดแท็บดึงกลุ่มคำสั่งนี้กลับเข้ามาอยู่ในฟังก์ชัน index() และอยู่ภายใต้เงื่อนไข if ให้ถูกต้อง
-            import random
             current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
             random_num = random.randint(1000, 9999)
-            filename = f"slip_{current_time}_{random_num}.{file_ext}"  # 👈 ปลอดภัย เป็นภาษาอังกฤษล้วนแล้ว!
+            filename = f"slip_{current_time}_{random_num}.{file_ext}"
 
             try:
-                import io # ตรวจสอบเผื่อว่าลืม import ไว้ด้านบน
+                # 1. อ่านไฟล์รูปออกมาเป็นก้อนข้อมูลดิบ (bytes)
+                raw_data = file.read()
                 
-                # อ่านไฟล์ออกมา
-                file_data = file.read()
-                # นำมาแปลงผ่าน io.BytesIO เพื่อสร้างออบเจกต์ไฟล์จำลองที่ปลอดภัยสำหรับ Supabase SDK
-                file_object = io.BytesIO(file_data)
-
+                # 2. ส่งข้อมูลดิบแบบ bytes เข้าไปตรงๆ และระบุฟอร์แมตไฟล์ใน Content-Type ให้ถูกต้องรูปจะได้ไม่ขึ้นตัวต่างดาว
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
-                    file=file_object,  # 👈 ส่งตัวแปร file_object ที่จัดรูปแบบแล้ว
-                    file_options={
-                        "content-type": file.content_type, # 👈 ตัวนี้จะช่วยระบุฟอร์แมตภาพให้เบราว์เซอร์อ่านออก
-                        "cache-control": "3600"
-                    },
+                    file=raw_data,  # 👈 ส่งก้อน bytes สดๆ ปลอดภัยสุด ไม่พังเป็น BytesIO แน่นอน
+                    file_options={"content-type": f"image/{file_ext if file_ext != 'jpg' else 'jpeg'}"},
                 )
+                
                 public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
+                # 3. เข้ารหัสชื่อภาษาไทยป้องกัน ASCII error ระดับ Database
+                encoded_name = base64.b64encode(name.encode('utf-8')).decode('utf-8')
+
                 data = {
-                    "name": name,
+                    "name": encoded_name, 
                     "amount": float(amount),
                     "slip_url": public_url,
                     "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -120,7 +93,6 @@ def index():
             flash("❌ รูปภาพต้องเป็นนามสกุล png, jpg, jpeg, gif เท่านั้น", "danger")
             return redirect(url_for("index"))
 
-    # ส่งรายชื่อที่ฟิกไว้ไปทำ Dropdown (Select Option) ในหน้าเว็บด้วย
     return render_template("index.html", allowed_names=ALLOWED_NAMES)
 
 
@@ -136,18 +108,32 @@ def admin_panel():
             flash("❌ รหัสผ่านแอดมินไม่ถูกต้อง!", "danger")
             return redirect(url_for("admin_panel"))
 
-    # เช็คว่าล็อกอินค้างไว้หรือยัง
     is_admin = session.get("is_admin", False)
     rows = []
+    total_amount = 0
+    total_count = 0
     
     if is_admin:
         try:
             response = supabase.table("payments").select("*").order("id", desc=True).execute()
             rows = response.data
+            
+            for row in rows:
+                # ถอดรหัสชื่อกลับเป็นภาษาไทยเพื่อแสดงผลบนตารางแอดมิน
+                try:
+                    encoded_name = row.get("name", "")
+                    row["name"] = base64.b64decode(encoded_name).decode('utf-8')
+                except Exception:
+                    pass
+                
+                total_amount += row.get("amount", 0)
+            
+            total_count = len(rows)
+                    
         except Exception as e:
             print(f"Error fetching data: {e}")
 
-    return render_template("admin.html", payments=rows, is_admin=is_admin)
+    return render_template("admin.html", payments=rows, is_admin=is_admin, total_amount=total_amount, total_count=total_count)
 
 
 # --- ล็อกเอาต์ออกจากระบบแอดมิน ---
@@ -158,10 +144,9 @@ def admin_logout():
     return redirect(url_for("index"))
 
 
-# --- ฟังก์ชันสำหรับแอดมินกดลบข้อมูล (ล็อกให้ลบได้เฉพาะแอดมิน) ---
+# --- ฟังก์ชันสำหรับแอดมินกดลบข้อมูล ---
 @app.route("/delete/<int:payment_id>/<filename>", methods=["POST"])
 def delete_payment(payment_id, filename):
-    # 🚨 ตรวจความปลอดภัย: ถ้าไม่ใช่แอดมินที่ล็อกอินอยู่ ห้ามลบเด็ดขาด!
     if not session.get("is_admin", False):
         flash("⛔ คุณไม่มีสิทธิ์ลบข้อมูลนี้", "danger")
         return redirect(url_for("index"))
