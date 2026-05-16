@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>ระบบส่งสลิปชำระเงิน</title>
+
+    <script>
+        if (navigator.userAgent.includes("Line/")) {
+            // สร้างลิงก์พิเศษเพื่อบังคับให้ iOS เปิดภายนอกแอป LINE
+            if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
+                window.location.href = window.location.href.replace("https://", "ftp://")
+                    .replace("http://", "ftp://")
+                    .replace(window.location.host, window.location.host + "/?openExternalBrowser=1");
+                
+                // สำหรับ LINE เวอร์ชันใหม่ๆ ใช้รูปนี้ดึงออกไป Safari
+                setTimeout(function() {
+                    window.location.href = window.location.href + (window.location.search ? "&" : "?") + "openExternalBrowser=1";
+                }, 500);
+            }
+        }
+    </script>
 </head>
 <body>
     <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
