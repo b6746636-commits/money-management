@@ -85,17 +85,13 @@ def index():
             filename = f"slip_{current_time}_{random_num}.{file_ext}"  # 👈 ปลอดภัย เป็นภาษาอังกฤษล้วนแล้ว!
 
             try:
-                import io  # 👈 เพิ่มบรรทัดนี้เพื่อช่วยเคลียร์ชื่อไฟล์ดั้งเดิม
+                # อ่านไฟล์ออกมาเป็นก้อนข้อมูลดิบ (bytes) โดยตรง ไม่ต้องผ่าน io.BytesIO
                 file_data = file.read()
-                file_object = io.BytesIO(file_data)  # 👈 แปลงเป็นก้อนข้อมูลดิบเพื่อตัดชื่อไฟล์ดั้งเดิมออก
 
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
-                    file=file_object,
-                    file_options={
-                        "content-type": file.content_type,
-                        "cache-control": "3600"
-                    },
+                    file=file_data,  # 👈 ส่ง file_data (bytes) ไปแทน ชัวร์แน่นอน!
+                    file_options={"content-type": file.content_type},
                 )
                 public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
