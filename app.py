@@ -11,7 +11,7 @@ SUPABASE_URL = "https://atnjjcdcaxuqbzzzhloy.supabase.co"
 
 # ⚠️ แนะนำ: ให้ไปก๊อปปี้คีย์ที่เป็น "service_role" (secret key) จากหน้าเว็บ Supabase มาใส่แทนคีย์เดิม
 # เพื่อให้หลังบ้านมีสิทธิ์บันทึกข้อมูลและอัปโหลดไฟล์ได้อย่างถูกต้องครับ
-SUPABASE_KEY = "sb_publishable_c52Jv74jtCh2FoDL3YvHhA_P435b2ZC" 
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bmpqY2RjYXh1cWJ6enpobG95Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODkxMDUxMywiZXhwIjoyMDk0NDg2NTEzfQ.R97ZWVQUVel23O0ruF_t642YloTd_INNpFaxqEUitO8" 
 
 # แก้ไขตรงนี้: ลบคำว่า ": Client" ออกเพื่อให้โค้ดคลีนขึ้น ป้องกันเซิร์ฟเวอร์สับสน
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
