@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
 
 # 🔑 ตั้งรหัสผ่านสำหรับแอดมินที่นี่
-ADMIN_PASSWORD = "your_admin_password_here" 
+ADMIN_PASSWORD = "01122004" 
 
 # 👥 1. ฟิกรายชื่อคนที่มีสิทธิ์จ่ายเงินไว้ที่นี่ (แก้ไขตามชื่อจริงได้เลยครับ)
 ALLOWED_NAMES = [
@@ -60,10 +60,13 @@ def index():
             filename = f"slip_{current_time}_{random_num}.{file_ext}"  # 👈 ปลอดภัย เป็นภาษาอังกฤษล้วนแล้ว!
 
             try:
+                import io  # 👈 เพิ่มบรรทัดนี้เพื่อช่วยเคลียร์ชื่อไฟล์ดั้งเดิม
                 file_data = file.read()
+                file_object = io.BytesIO(file_data)  # 👈 แปลงเป็นก้อนข้อมูลดิบเพื่อตัดชื่อไฟล์ดั้งเดิมออก
+
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
-                    file=file_data,
+                    file=file_object,  # 👈 เปลี่ยนมาส่งก้อนข้อมูลดิบที่ไม่มีภาษาไทยแทน
                     file_options={"content-type": file.content_type},
                 )
                 public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
