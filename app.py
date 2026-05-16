@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for, session  # 👈 เพิ่ม session ตรงนี้
 from supabase import create_client
+
+if sys.stdout.encoding != 'utf-8':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
@@ -37,7 +43,8 @@ def allowed_file(filename):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        name = request.form.get("name")
+        
+        name = request.form.get("name", "").strip()
         amount = request.form.get("amount")
         file = request.files.get("slip")
 
@@ -83,7 +90,7 @@ def index():
                 return redirect(url_for("index"))
 
             except Exception as e:
-                flash(f"เกิดข้อผิดพลาด: {e}", "danger")
+                flash(f"เกิดข้อผิดพลาด: {str(e)}", "danger")
                 return redirect(url_for("index"))
         else:
             flash("❌ รูปภาพต้องเป็นนามสกุล png, jpg, jpeg, gif เท่านั้น", "danger")
