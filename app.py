@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+# --- วางแทนที่โค้ดดัก sys.stdout เดิม ---
+import locale
+# บังคับระบบใน Server ให้เข้าใจว่าแอปพลิเคชันนี้ใช้ UTF-8 เป็นหลักในการคุยกับภายนอก
+locale.getpreferredencoding = lambda *args: 'UTF-8'
+os.environ["PYTHONIOENCODING"] = "utf-8"
 from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for, session  # 👈 เพิ่ม session ตรงนี้
 from supabase import create_client
@@ -31,8 +36,16 @@ ALLOWED_NAMES = [
 
 # --- 🔌 เชื่อมต่อ Supabase ---
 SUPABASE_URL = "https://atnjjcdcaxuqbzzzhloy.supabase.co"
-SUPABASE_KEY = "รหัส_service_role_ของคุณ" 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bmpqY2RjYXh1cWJ6enpobG95Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODkxMDUxMywiZXhwIjoyMDk0NDg2NTEzfQ.R97ZWVQUVel23O0ruF_t642YloTd_INNpFaxqEUitO8" 
+
+# เพิ่ม headers พิเศษเพื่อบอก Supabase ว่าเรากำลังส่งภาษาไทย (UTF-8) ไปให้นะ
+SUPABASE_HEADERS = {
+    "Content-Type": "application/json; charset=utf-8",
+    "Accept-Charset": "utf-8"
+}
+
+# ส่ง headers เข้าไปพร้อมตอนสร้าง client
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY, options={"headers": SUPABASE_HEADERS})
 BUCKET_NAME = "payment-slips"  
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
