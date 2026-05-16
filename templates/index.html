@@ -3,88 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>ระบบส่งสลิปชำระเงิน</title>
-    </head>
-<body>
-    <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
-        <h2>📝 ฟอร์มส่งสลิปชำระเงิน</h2>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div style="padding: 10px; margin-bottom: 10px; color: white; background-color: {% if category=='success' %}green{% else %}red{% endif %};">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        <form method="POST" enctype="multipart/form-data">
-            <p>
-    <label>👤 เลือกชื่อของคุณ:</label><br>
-    <select name="name" required style="width: 100%; padding: 8px;">
-        <option value="">-- กรุณาเลือกชื่อของคุณ --</option>
-        
-        <optgroup label="✨ รุ่น 14">
-            <option value="เหมยเหมย">1. เหมยเหมย</option>
-            <option value="วุ้นเป็ด">2. วุ้นเป็ด</option>
-            <option value="กาฟิว">3. กาฟิว</option>
-            <option value="ไฟท์">4. ไฟท์</option>
-            <option value="กัน">5. กัน</option>
-            <option value="ต้นข้าว">6. ต้นข้าว</option>
-            <option value="แอน">7. แอน</option>
-            <option value="น้ำมนต์">8. น้ำมนต์</option>
-            <option value="เนส">9. เนส</option>
-            <option value="จ๊ะจ๋า">10. จ๊ะจ๋า</option>
-            <option value="แพนเค้ก">11. แอนเค้ก</option>
-            <option value="อาคลัง">12. อาคลัง</option>
-            <option value="โอม">13. โอม</option>
-            <option value="เอ็มมี่">14. เอ็มมี่</option>
-            <option value="กีตาร์">15. กีตาร์</option>
-            <option value="หมูอ้วน">16. หมูอ้วน</option>
-            <option value="อุ๋มอิ๋ม">17. อุ๋มอิ๋ม</option>
-            <option value="ปัญปัญ">18. ปัญปัญ</option>
-        </optgroup>
-
-        <optgroup label="✨ รุ่น 15">
-            <option value="นุ่น">1. นุ่น</option>
-            <option value="จ้าว">2. จ้าว</option>
-            <option value="โฟร์">3. โฟร์</option>
-            <option value="ลูกไหม">4. ลูกไหม</option>
-            <option value="ออย">5. ออย</option>
-            <option value="ปอแก้ว">6. ปอแก้ว</option>
-            <option value="เชอร์รี่">7. เชอร์รี่</option>
-            <option value="สารวัตร">8. สารวัตร</option>
-            <option value="ฟีฟ่า">9. ฟีฟ่า</option>
-            <option value="มาร์ติน">10. มาร์ติน</option>
-            <option value="ปังปัง">11. ปังปัง</option>
-            <option value="ฟลุ๊ก">12. ฟลุ๊ก</option>
-            <option value="พีเจ">13. พีเจ</option>
-            <option value="ฟิล์ม">14. ฟิล์ม</option>
-            <option value="เฟรม">15. เฟรม</option>
-        </optgroup>
-    </select>
-</p>
-                <label>💰 จำนวนเงิน (บาท):</label><br>
-                <input type="number" name="amount" step="0.01" required style="width: 100%; padding: 8px;">
-            </p>
-            <p>
-                <label>📸 แนบภาพสลิปเงินโอน:</label><br>
-                <input type="file" name="slip" accept="image/*" required>
-            </p>
-            <button type="submit" style="padding: 10px 20px; background-color: blue; color: white; border: none; cursor: pointer;">ส่งข้อมูลชำระเงิน</button>
-        </form>
-        
-        <br><hr><br>
-        <p align="center">
-            <a href="{{ url_for('admin_panel') }}">🔐 สำหรับผู้ดูแลระบบ (Admin)</a>
-        </p>
-    </div>
-</body>
-</html><!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <title>ระบบส่งสลิปชำระเงิน</title>
 </head>
 <body>
     <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
@@ -117,8 +35,7 @@
                         <option value="น้ำมนต์">8. น้ำมนต์</option>
                         <option value="เนส">9. เนส</option>
                         <option value="จ๊ะจ๋า">10. จ๊ะจ๋า</option>
-                        <option value="แพนเค้ก">11. แพนเค้ก</option>
-                        <option value="อาคลัง">12. อาคลัง</option>
+                        <option value="แพนเค้ก">11. แพนเค้ก</option> <option value="อาคลัง">12. อาคลัง</option>
                         <option value="โอม">13. โอม</option>
                         <option value="เอ็มมี่">14. เอ็มมี่</option>
                         <option value="กีตาร์">15. กีตาร์</option>
@@ -133,8 +50,7 @@
                         <option value="โฟร์">3. โฟร์</option>
                         <option value="ลูกไหม">4. ลูกไหม</option>
                         <option value="ออย">5. ออย</option>
-                        <option value="ปorก้ว">6. ปอแก้ว</option>
-                        <option value="เชอร์รี่">7. เชอร์รี่</option>
+                        <option value="ปอแก้ว">6. ปอแก้ว</option> <option value="เชอร์รี่">7. เชอร์รี่</option>
                         <option value="สารวัตร">8. สารวัตร</option>
                         <option value="ฟีฟ่า">9. ฟีฟ่า</option>
                         <option value="มาร์ติน">10. มาร์ติน</option>
@@ -146,7 +62,7 @@
                     </optgroup>
                 </select>
             </p>
-
+            
             <p>
                 <label>💰 จำนวนเงิน (บาท):</label><br>
                 <input type="number" name="amount" step="0.01" required style="width: 100%; padding: 8px;">
