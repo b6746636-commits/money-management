@@ -85,13 +85,20 @@ def index():
             filename = f"slip_{current_time}_{random_num}.{file_ext}"  # 👈 ปลอดภัย เป็นภาษาอังกฤษล้วนแล้ว!
 
             try:
-                # อ่านไฟล์ออกมาเป็นก้อนข้อมูลดิบ (bytes) โดยตรง ไม่ต้องผ่าน io.BytesIO
+                import io # ตรวจสอบเผื่อว่าลืม import ไว้ด้านบน
+                
+                # อ่านไฟล์ออกมา
                 file_data = file.read()
+                # นำมาแปลงผ่าน io.BytesIO เพื่อสร้างออบเจกต์ไฟล์จำลองที่ปลอดภัยสำหรับ Supabase SDK
+                file_object = io.BytesIO(file_data)
 
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
-                    file=file_data,  # 👈 ส่ง file_data (bytes) ไปแทน ชัวร์แน่นอน!
-                    file_options={"content-type": file.content_type},
+                    file=file_object,  # 👈 ส่งตัวแปร file_object ที่จัดรูปแบบแล้ว
+                    file_options={
+                        "content-type": file.content_type, # 👈 ตัวนี้จะช่วยระบุฟอร์แมตภาพให้เบราว์เซอร์อ่านออก
+                        "cache-control": "3600"
+                    },
                 )
                 public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(filename)
 
