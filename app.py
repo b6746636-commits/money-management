@@ -110,8 +110,8 @@ def admin_panel():
 
     is_admin = session.get("is_admin", False)
     rows = []
-    total_amount = 0
-    total_count = 0
+    total_amount = 0   # 👈 1. ประกาศตัวแปรตั้งต้น ยลื่นสีเหลืองจะหายไปทันที!
+    total_count = 0    # 👈 2. ประกาศตัวแปรนับจำนวนรายการ
     
     if is_admin:
         try:
@@ -126,13 +126,16 @@ def admin_panel():
                 except Exception:
                     pass
                 
+                # บวกสะสมยอดเงินเข้าตัวแปร
                 total_amount += row.get("amount", 0)
             
+            # นับจำนวนรายการทั้งหมดที่ดึงมาได้
             total_count = len(rows)
                     
         except Exception as e:
             print(f"Error fetching data: {e}")
 
+    # ส่งตัวแปรทั้งหมดไปที่หน้า admin.html ธีมดาร์กสุดเท่ของเรา
     return render_template("admin.html", payments=rows, is_admin=is_admin, total_amount=total_amount, total_count=total_count)
 
 
