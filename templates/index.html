@@ -2,99 +2,245 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ระบบส่งสลิปชำระเงิน</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบส่งสลิปชำระเงิน - Liquor Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(20, 26, 44, 0.65);
+            --neon-blue: #00f2fe;
+            --neon-purple: #4facfe;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
 
-    <script>
-        if (navigator.userAgent.includes("Line/")) {
-            // สร้างลิงก์พิเศษเพื่อบังคับให้ iOS เปิดภายนอกแอป LINE
-            if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
-                window.location.href = window.location.href.replace("https://", "ftp://")
-                    .replace("http://", "ftp://")
-                    .replace(window.location.host, window.location.host + "/?openExternalBrowser=1");
-                
-                // สำหรับ LINE เวอร์ชันใหม่ๆ ใช้รูปนี้ดึงออกไป Safari
-                setTimeout(function() {
-                    window.location.href = window.location.href + (window.location.search ? "&" : "?") + "openExternalBrowser=1";
-                }, 500);
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(79, 172, 254, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
+            font-family: 'Anuphan', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* เอฟเฟกต์ Fade-in ตอนโหลดหน้าเว็บครั้งแรก */
+        .main-container {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+            max-width: 520px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    </script>
+
+        /* กล่องฟอร์มแบบกระจกฝ้า (Glassmorphism) */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 
+                        0 0 15px rgba(79, 172, 254, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 
+                        0 0 25px rgba(0, 242, 254, 0.2);
+        }
+
+        .title-brand {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+
+        /* ตกแต่ง Input และ Select */
+        .form-label {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(11, 15, 25, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #fff !important;
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--neon-blue) !important;
+            box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.25) !important;
+            transform: scale(1.01);
+        }
+
+        .form-select option {
+            background-color: #141a2c;
+            color: #fff;
+        }
+
+        /* ปรับแต่ง Dropzone หรือ Input File ให้ดูล้ำ */
+        .file-input-wrapper {
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* ปุ่มส่งข้อมูลแบบ Neon Glow Effect */
+        .btn-cyber {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 14px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-cyber:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.6);
+            color: #fff;
+        }
+
+        .btn-cyber:active {
+            transform: translateY(1px);
+        }
+
+        /* แฟลชเมสเซจสไตล์การแจ้งเตือนระบบ */
+        .alert {
+            border-radius: 14px;
+            border: none;
+            font-weight: 600;
+        }
+        .alert-success {
+            background-color: rgba(25, 135, 84, 0.2);
+            color: #25cff2;
+            border: 1px solid rgba(25, 135, 84, 0.4);
+        }
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #ea868f;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+        }
+
+        /* ลิงก์ไปหน้า Admin ด้านล่าง */
+        .admin-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-link:hover {
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+        }
+    </style>
 </head>
 <body>
-    <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
-        <h2>📝 ฟอร์มส่งสลิปชำระเงิน</h2>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
+
+<div class="main-container">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
             {% for category, message in messages %}
-              <div style="padding: 10px; margin-bottom: 10px; color: white; background-color: {% if category=='success' %}green{% else %}red{% endif %};">
-                {{ message }}
-              </div>
+                <div class="alert alert-{{ category }} text-center mb-3 shadow-sm" role="alert">
+                    {{ message }}
+                </div>
             {% endfor %}
-          {% endif %}
-        {% endwith %}
+        {% endif %}
+    {% endwith %}
 
-        <form method="POST" enctype="multipart/form-data">
-            <p>
-                <label>👤 เลือกชื่อของคุณ:</label><br>
-                <select name="name" required style="width: 100%; padding: 8px;">
-                    <option value="">-- กรุณาเลือกชื่อของคุณ --</option>
-                    
-                    <optgroup label="✨ รุ่น 14">
-                        <option value="เหมยเหมย">1. เหมยเหมย</option>
-                        <option value="วุ้นเป็ด">2. วุ้นเป็ด</option>
-                        <option value="กาฟิว">3. กาฟิว</option>
-                        <option value="ไฟท์">4. ไฟท์</option>
-                        <option value="กัน">5. กัน</option>
-                        <option value="ต้นข้าว">6. ต้นข้าว</option>
-                        <option value="แอน">7. แอน</option>
-                        <option value="น้ำมนต์">8. น้ำมนต์</option>
-                        <option value="เนส">9. เนส</option>
-                        <option value="จ๊ะจ๋า">10. จ๊ะจ๋า</option>
-                        <option value="แพนเค้ก">11. แพนเค้ก</option> <option value="อาคลัง">12. อาคลัง</option>
-                        <option value="โอม">13. โอม</option>
-                        <option value="เอ็มมี่">14. เอ็มมี่</option>
-                        <option value="กีตาร์">15. กีตาร์</option>
-                        <option value="หมูอ้วน">16. หมูอ้วน</option>
-                        <option value="อุ๋มอิ๋ม">17. อุ๋มอิ๋ม</option>
-                        <option value="ปัญปัญ">18. ปัญปัญ</option>
-                    </optgroup>
+    <div class="glass-card">
+        <div class="text-center mb-4">
+            <div class="mb-2">
+                <i class="fa-solid fa-wine-glass-fluid fa-3x" style="color: var(--neon-blue); filter: drop-shadow(0 0 8px rgba(0,242,254,0.4));"></i>
+            </div>
+            <h2 class="h4 mb-1 fw-bold">แจ้งชำระเงินค่าน้ำเก๊กฮวย</h2>
+            <p class="text-muted small title-brand">LIQUOR SHOP MANAGEMENT</p>
+        </div>
 
-                    <optgroup label="✨ รุ่น 15">
-                        <option value="นุ่น">1. นุ่น</option>
-                        <option value="จ้าว">2. จ้าว</option>
-                        <option value="โฟร์">3. โฟร์</option>
-                        <option value="ลูกไหม">4. ลูกไหม</option>
-                        <option value="ออย">5. ออย</option>
-                        <option value="ปอแก้ว">6. ปอแก้ว</option> <option value="เชอร์รี่">7. เชอร์รี่</option>
-                        <option value="สารวัตร">8. สารวัตร</option>
-                        <option value="ฟีฟ่า">9. ฟีฟ่า</option>
-                        <option value="มาร์ติน">10. มาร์ติน</option>
-                        <option value="ปังปัง">11. ปังปัง</option>
-                        <option value="ฟลุ๊ก">12. ฟลุ๊ก</option>
-                        <option value="พีเจ">13. พีเจ</option>
-                        <option value="ฟิล์ม">14. ฟิล์ม</option>
-                        <option value="เฟรม">15. เฟรม</option>
-                    </optgroup>
+        <form action="{{ url_for('index') }}" method="POST" enctype="multipart/form-data">
+            
+            <div class="mb-4">
+                <label for="name" class="form-label">
+                    <i class="fa-regular fa-user me-2 text-info"></i>เลือกชื่อของคุณ
+                </label>
+                <select class="form-select" id="name" name="name" required>
+                    <option value="" disabled selected>-- กรุณาเลือกชื่อจากระบบ --</option>
+                    {% for allowed_name in allowed_names %}
+                        <option value="{{ allowed_name }}">{{ allowed_name }}</option>
+                    {% endfor %}
                 </select>
-            </p>
-            
-            <p>
-                <label>💰 จำนวนเงิน (บาท):</label><br>
-                <input type="number" name="amount" step="0.01" required style="width: 100%; padding: 8px;">
-            </p>
-            
-            <p>
-                <label>📸 แนบภาพสลิปเงินโอน:</label><br>
-                <input type="file" name="slip" accept="image/*" required>
-            </p>
-            <button type="submit" style="padding: 10px 20px; background-color: blue; color: white; border: none; cursor: pointer;">ส่งข้อมูลชำระเงิน</button>
+            </div>
+
+            <div class="mb-4">
+                <label for="amount" class="form-label">
+                    <i class="fa-solid fa-baht-sign me-2 text-info"></i>จำนวนเงิน (บาท)
+                </label>
+                <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="ระบุยอดโอนตามจริง เช่น 350" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="slip" class="form-label">
+                    <i class="fa-regular fa-image me-2 text-info"></i>แนบภาพสลิปเงินโอน
+                </label>
+                <div class="file-input-wrapper">
+                    <input type="file" class="form-control" id="slip" name="slip" accept="image/*" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-cyber w-100 mt-2 py-3">
+                <i class="fa-solid fa-paper-plane me-2"></i>ส่งข้อมูลชำระเงิน
+            </button>
+
         </form>
-        
-        <br><hr><br>
-        <p align="center">
-            <a href="{{ url_for('admin_panel') }}">🔐 สำหรับผู้ดูแลระบบ (Admin)</a>
-        </p>
+
+        <div class="text-center mt-4 pt-2 border-top border-secondary border-opacity-25">
+            <a href="{{ url_for('admin_panel') }}" class="admin-link">
+                <i class="fa-solid fa-lock"></i> สำหรับผู้ดูแลระบบ (Admin)
+            </a>
+        </div>
     </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
