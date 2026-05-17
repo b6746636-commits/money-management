@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_key_for_flash_messages"
 
 # 🔑 ตั้งรหัสผ่านสำหรับแอดมิน
-ADMIN_PASSWORD = "01122004" 
+ADMIN_PASSWORD = "01122004." 
 
 # 👥 รายชื่อระบบ
 ALLOWED_NAMES = [
@@ -37,7 +37,7 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# --- หน้าแรก (ส่งฟอร์มสลิป) ---
+# --- หน้าแรก (ส่งฟอร์มสลิป + แสดงยอดสรุปขอฃทุกคน) ---
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -60,13 +60,10 @@ def index():
             filename = f"slip_{current_time}_{random_num}.{file_ext}"
 
             try:
-                # 1. อ่านไฟล์รูปออกมาเป็นก้อนข้อมูลดิบ (bytes)
                 raw_data = file.read()
-                
-                # 2. ส่งข้อมูลดิบแบบ bytes เข้าไปตรงๆ และระบุฟอร์แมตไฟล์ใน Content-Type ให้ถูกต้องรูปจะได้ไม่ขึ้นตัวต่างดาว
                 supabase.storage.from_(BUCKET_NAME).upload(
                     path=filename,
-                    file=raw_data,  # 👈 ส่งก้อน bytes สดๆ ปลอดภัยสุด ไม่พังเป็น BytesIO แน่นอน
+                    file=raw_data,  
                     file_options={"content-type": f"image/{file_ext if file_ext != 'jpg' else 'jpeg'}"},
                 )
                 
@@ -92,8 +89,24 @@ def index():
         else:
             flash("❌ รูปภาพต้องเป็นนามสกุล png, jpg, jpeg, gif เท่านั้น", "danger")
             return redirect(url_for("index"))
+    
+    # --- ส่วนดึงข้อมูลมาสรุปยอดให้ผู้ใช้งานทั่วไปเห็น ---
+    user_summary = {name: {"total_amount": 0.0, "count": 0} for name in ALLOWED_NAMES}
+    try:
+        response = supabase.table("payments").select("name", "amount").execute()
+        all_payments = response.data
+        for p in all_payments:
+            try:
+                decoded_name = base64.b64decode(p.get("name", "")).decode('utf-8')
+                if decoded_name in user_summary:
+                    user_summary[decoded_name]["total_amount"] += float(p.get("amount", 0))
+                    user_summary[decoded_name]["count"] += 1
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"Error summary: {e}")    
 
-    return render_template("index.html", allowed_names=ALLOWED_NAMES)
+    return render_template("index.html", allowed_names=ALLOWED_NAMES, user_summary=user_summary)
 
 
 # --- หน้าสำหรับแอดมินล็อกอินเข้าดูข้อมูล ---
