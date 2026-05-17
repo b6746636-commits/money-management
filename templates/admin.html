@@ -12,128 +12,141 @@
     
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(20, 26, 44, 0.75);
-            --neon-blue: #00f2fe;
-            --neon-purple: #4facfe;
-            --neon-red: #ff4b2b;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
+            --bg-color: #f1f5f9; /* สีพื้นหลังเทาอ่อน Slate 100 */
+            --card-bg: #ffffff; /* กล่องข้อมูลสีขาว */
+            --primary-color: #4f46e5; /* สี Indigo เพิ่มความน่าเชื่อถือให้ระบบแอดมิน */
+            --neon-red: #ef4444; /* สีแดงสำหรับปุ่มลบ */
+            --text-main: #0f172a; /* ตัวอักษรหลักสีเข้มมาก ชัดเจน */
+            --text-muted: #64748b; /* ตัวอักษรสีรอง */
+            --border-color: #e2e8f0;
         }
 
         body {
             background-color: var(--bg-color);
-            background-image: linear-gradient(180deg, rgba(11, 15, 25, 1) 0%, rgba(18, 24, 41, 1) 100%);
             font-family: 'Anuphan', sans-serif;
             color: var(--text-main);
             min-height: 100vh;
-            padding: 20px 0;
+            padding: 40px 0;
         }
 
         .glass-panel {
             background: var(--card-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
         .brand-text {
             font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--primary-color);
             font-weight: 700;
         }
 
-        /* Stats Cards */
+        /* การ์ดสรุปสถิติ */
         .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .stat-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
 
-        /* Table Styling */
+        /* ตกแต่งตารางให้ดูสะอาดและอ่านง่าย */
         .custom-table {
             color: var(--text-main);
             border-collapse: separate;
-            border-spacing: 0 10px;
+            border-spacing: 0 8px;
         }
         .custom-table thead th {
             border: none;
             color: var(--text-muted);
-            font-weight: 400;
+            font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 1px;
-            padding: 15px;
+            padding: 12px 16px;
         }
         .custom-table tbody tr {
-            background: rgba(255, 255, 255, 0.03);
-            transition: all 0.3s ease;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .custom-table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.07);
-            transform: scale(1.005);
+            background: #f8fafc;
+            transform: scale(1.002);
         }
         .custom-table td {
-            padding: 15px;
+            padding: 16px;
             border: none;
             vertical-align: middle;
         }
-        .custom-table td:first-child { border-radius: 12px 0 0 12px; }
-        .custom-table td:last-child { border-radius: 0 12px 12px 0; }
+        .custom-table td:first-child { 
+            border-radius: 12px 0 0 12px; 
+            border-left: 1px solid var(--border-color);
+        .custom-table td:last-child { 
+            border-radius: 0 12px 12px 0; 
+            border-right: 1px solid var(--border-color);
+        }
+        /* เพิ่มเส้นขอบบนและล่างให้แถวในตาราง */
+        .custom-table tbody tr td {
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
 
-        /* Login Form Admin */
+        /* กล่องล็อกอินแอดมิน */
         .login-box {
             max-width: 400px;
-            margin: 100px auto;
+            margin: 80px auto;
             text-align: center;
         }
 
+        /* ปุ่มออกจากระบบ */
         .btn-logout {
-            border: 1px solid rgba(255, 50, 50, 0.4);
-            color: #ff8080;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            background: #fef2f2;
             border-radius: 10px;
-            padding: 5px 15px;
+            padding: 6px 16px;
             text-decoration: none;
-            font-size: 0.8rem;
-            transition: all 0.3s;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
         .btn-logout:hover {
-            background: rgba(255, 50, 50, 0.1);
-            color: #ff4b2b;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .btn-view {
-            background: rgba(0, 242, 254, 0.1);
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
+            background: #eef2ff;
+            color: var(--primary-color);
+            border: 1px solid #c7d2fe;
             border-radius: 8px;
-            font-size: 0.8rem;
-            padding: 5px 12px;
-            transition: 0.3s;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            transition: 0.2s;
         }
         .btn-view:hover {
-            background: var(--neon-blue);
-            color: #000;
+            background: var(--primary-color);
+            color: #ffffff;
         }
 
         .btn-delete {
-            background: transparent;
-            color: #ff4b2b;
-            border: 1px solid rgba(255, 75, 43, 0.3);
+            background: #fff5f5;
+            color: var(--neon-red);
+            border: 1px solid #fed7d7;
             border-radius: 8px;
-            padding: 5px 12px;
-            font-size: 0.8rem;
+            padding: 6px 14px;
+            font-size: 0.85rem;
             margin-left: 5px;
+            transition: 0.2s;
         }
         .btn-delete:hover {
             background: var(--neon-red);
@@ -144,21 +157,25 @@
         .pulse {
             width: 8px;
             height: 8px;
-            background: #00f2fe;
+            background: #10b981;
             border-radius: 50%;
             display: inline-block;
             margin-right: 8px;
-            box-shadow: 0 0 8px #00f2fe;
+            box-shadow: 0 0 8px #10b981;
             animation: pulse-animation 2s infinite;
         }
         @keyframes pulse-animation {
             0% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.4; }
             100% { opacity: 1; }
         }
+        /* แก้ไขสีข้อความในฟอร์ม Login */
+        .form-control {
+            background-color: #ffffff !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
     </style>
-</head>
-<body>
 
 <div class="container">
     {% if not is_admin %}
